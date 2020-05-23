@@ -48,7 +48,8 @@ func Evaluate(datasetPath string, algo Predictor) (Metrics, error) {
 		return Metrics{}, err
 	}
 
-	trainData, trainLabels, testData, testLabels := split(true, records, 0.7)
+	seed := uint64(time.Now().Unix())
+	trainData, trainLabels, testData, testLabels := split(records, 0.7, seed)
 
 	algo.Fit(trainData, trainLabels)
 
@@ -77,21 +78,13 @@ func loadFile(path string, header bool) ([][]string, error) {
 
 // split the dataset into training and test sets for training and evaluation
 // respectively.
-func split(random bool, records [][]string, trainProportion float64) (*mat.Dense, []string, *mat.Dense, []string) {
+func split(records [][]string, trainProportion float64, rndSeed uint64) (*mat.Dense, []string, *mat.Dense, []string) {
 	datasetLength := len(records)
 	indx := make([]int, int(float64(datasetLength)*trainProportion))
-	if random {
-		// randomly sample k indices for training set and sort
-		// TODO allow seed to be replicatable
-		r := rnd.New(rnd.NewSource(uint64(time.Now().Unix())))
-		sampleuv.WithoutReplacement(indx, datasetLength, r)
-		sort.Ints(indx)
-	} else {
-		// take the first k indices for the training set
-		for i := range indx {
-			indx[i] = i
-		}
-	}
+	// randomly sample k indices for training set and sort
+	r := rnd.New(rnd.NewSource(rndSeed))
+	sampleuv.WithoutReplacement(indx, datasetLength, r)
+	sort.Ints(indx)
 
 	trainData := mat.NewDense(len(indx), len(records[0])-1, nil)
 	trainLabels := make([]string, len(indx))
