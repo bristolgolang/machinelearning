@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"log"
 	"os"
+	"time"
 
 	"github.com/bristolgolang/machinelearning/classifiers"
 	"github.com/bristolgolang/machinelearning/harness"
@@ -22,7 +23,7 @@ func compareClassifiers() error {
 
 	classifierResults := make(map[string]harness.Metrics)
 	// Add your classifiers here and to classifierResults
-	randomResult, err := computeClassifierResults(&classifiers.Random{})
+	randomResult, err := computeClassifierResults(&classifiers.Random{Seed: time.Now().Unix()})
 	if err != nil {
 		return err
 	}
