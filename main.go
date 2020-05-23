@@ -1,7 +1,9 @@
 package main
 
 import (
+	"fmt"
 	"log"
+	"os"
 
 	"github.com/bristolgolang/machinelearning/classifiers"
 	"github.com/bristolgolang/machinelearning/harness"
@@ -9,18 +11,37 @@ import (
 )
 
 func main() {
-	log.Println("Evaluating models")
-	randomClassifier := classifiers.Random{}
-	result, err := harness.Evaluate("data_banknote_authentication.csv", &randomClassifier)
-	if err != nil {
-		log.Fatal(err)
+	if err := compareClassifiers(); err != nil {
+		fmt.Println(err)
+		os.Exit(1)
 	}
-	log.Printf("Random result = %+v", result)
+}
 
-	knnClassifier := classifiers.KNN{K: 2, Distance: maths.EuclideanDistance}
-	result, err = harness.Evaluate("data_banknote_authentication.csv", &knnClassifier)
+func compareClassifiers() error {
+	log.Println("Evaluating models")
+
+	classifierResults := make(map[string]harness.Metrics)
+	// Add your classifiers here and to classifierResults
+	randomResult, err := computeClassifierResults(&classifiers.Random{})
 	if err != nil {
-		log.Fatal(err)
+		return err
 	}
-	log.Printf("KNN result =    %+v", result)
+	classifierResults["random"] = randomResult
+
+	simpleKNNResult, err := computeClassifierResults(&classifiers.SimpleKNN{K: 2, Distance: maths.EuclideanDistance})
+	if err != nil {
+		return err
+	}
+	classifierResults["simpleKNN"] = simpleKNNResult
+
+	harness.PrintResults(classifierResults)
+	return nil
+}
+
+func computeClassifierResults(predictor harness.Predictor) (harness.Metrics, error) {
+	randomResult, err := harness.Evaluate("data_banknote_authentication.csv", predictor)
+	if err != nil {
+		return harness.Metrics{}, err
+	}
+	return randomResult, nil
 }
