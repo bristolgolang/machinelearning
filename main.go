@@ -40,7 +40,7 @@ func compareClassifiers() error {
 }
 
 func computeClassifierResults(predictor harness.Predictor) (harness.Metrics, error) {
-	randomResult, err := harness.Evaluate("data_banknote_authentication.csv", predictor)
+	randomResult, err := harness.Evaluate("titanic.csv", predictor)
 	if err != nil {
 		return harness.Metrics{}, err
 	}

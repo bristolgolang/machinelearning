@@ -6,7 +6,11 @@ We will be exploring concepts used when creating classifiers in Go, building our
 
 ## Goal
 
-To explore, understand and implement our own classifier algorithm to detect authentic bank notes, using this [data set from UCI](http://archive.ics.uci.edu/ml/datasets/banknote+authentication).
+To explore, understand and implement our own classifier algorithm.
+
+### Bonus Goals
+
+To implement some feature engineering on a more challenging dataset.
 
 ## How to partake
 
