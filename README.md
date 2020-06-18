@@ -6,7 +6,7 @@ We will be exploring concepts used when creating classifiers in Go, building our
 
 ## Goal
 
-To explore, understand and implement our own classifier algorithm.
+To explore, understand and implement our own classifier algorithm. We'll be looking at a titanic dataset that has already been feature engineered, such that all categorical data has been encoded into numbers for us.
 
 ### Bonus Goals
 
