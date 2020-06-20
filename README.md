@@ -1,24 +1,34 @@
 # Machine Learning excercise
 
-This is the excercise to go alongside the machine learning talks our [meetup group](https://www.meetup.com/golang-bristol/) held in April. It is a _mildly_ ammended version of [fresh8's mlworkshop](https://github.com/fresh8/mlworkshop), thank you!
+This is the excercise to go alongside the machine learning talks our [meetup group](https://www.meetup.com/golang-bristol/) held in April. It is a _mildly_ ammended version of [fresh8's mlworkshop](https://github.com/fresh8/mlworkshop), thank you for sharing!
 
 We will be exploring concepts used when creating classifiers in Go, building our own from scratch using the [slides from James' talk](https://snip.ly/3d66pb)
 
 ## Goal
 
-To explore, understand and implement our own classifier algorithm. We'll be looking at a titanic dataset that has already been feature engineered, such that all categorical data has been encoded into numbers for us.
+To explore, understand and implement our own KNN classifier algorithm.
+We'll be looking at a titanic dataset that has already been feature engineered, such that all categorical data has been encoded into numbers for us.
+
+### Create a KNN classifier from scratch
+
+There's a simple KNN classifier already in this repo, so if you wish to avoid spoilers don't look at the `simpleknnclassifier.go` file in the `classifiers` package.
+However, if you wish to see an example of the classifier implemented, it's a good place to start.
+
+### Improve a simple KNN classifier
+
+Either copy the simple classifier, or take the classifier you built, and try some of these [techniques for improving your classifier](https://kevinzakka.github.io/2016/07/13/k-nearest-neighbor/#improvements)
 
 ### Bonus Goals
 
-To implement some feature engineering on a more challenging dataset.
+- To implement some feature engineering on a more [challenging titanic dataset](https://www.kaggle.com/c/titanic/data).
 
 ## How to partake
 
-This exercise is available for everyone, we will be covering it in the Bristol meetup.
+This exercise is available for everyone, however we will be covering explicitly it in the June 2020 Bristol (UK) Go meetup.
 
-Either clone the repo and implement the `main.go` file in the root, you can then make a PR back to into this repo, sharing what you learnt with others, or create your own package and import the harness package.
-
-If you fancy sharing your work, make a PR into this repo, they will not be merged but it will allow others to see what other solutions you have all come up with.
+Either;
+- clone the repo and implement your own KNN classifier in the classifiers package, you can then make a PR back to into this repo, sharing what you learnt with others (recommended)
+- create your own package and import the harness package
 
 ## Understanding the harness package
 

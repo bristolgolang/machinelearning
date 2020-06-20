@@ -29,7 +29,7 @@ func compareClassifiers() error {
 	}
 	classifierResults["random"] = randomResult
 
-	simpleKNNResult, err := computeClassifierResults(&classifiers.SimpleKNN{K: 2, Distance: maths.EuclideanDistance})
+	simpleKNNResult, err := computeClassifierResults(&classifiers.SimpleKNN{K: 7, Distance: maths.EuclideanDistance})
 	if err != nil {
 		return err
 	}
