@@ -37,8 +37,9 @@ func (k *SimpleKNN) Predict(X *mat.Dense) []string {
 
 		// sort the distances
 		floats.Argsort(distances, inds)
-		votes := make(map[string]float64)
+
 		// for the nearest K neighbours tally up their class count
+		votes := make(map[string]float64)
 		for n := 0; n < k.K; n++ {
 			votes[k.classes[inds[n]]]++
 		}

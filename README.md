@@ -25,16 +25,23 @@ Either copy the simple classifier, or take the classifier you built, and try som
 ## How to partake
 
 This exercise is available for everyone, however we will be covering explicitly it in the June 2020 Bristol (UK) Go meetup.
+It is recommended to read through the README while exploring the codebase.
+We're aiming towards building the knnclassifier, so read that file at your own discretion.
 
 Either;
 - clone the repo and implement your own KNN classifier in the classifiers package, you can then make a PR back to into this repo, sharing what you learnt with others (recommended)
 - create your own package and import the harness package
 
-## Understanding the harness package
+## Understanding the codebase
 
-### The Predictor interface
+### Understanding the harness package
 
-The biggest concept in the harness package is the `Predictor` interface. If you're unfamiliar with go interfaces, [go by example](https://gobyexample.com/interfaces) has simple examples. If you prefer podcasts, [go time](https://changelog.com/gotime) has an excellent episode on [interfaces](https://changelog.com/gotime/118)
+#### The Predictor interface
+
+The biggest concept in the harness package is the `Predictor` interface.
+If you're unfamiliar with go interfaces, [go by example](https://gobyexample.com/interfaces) has simple examples.
+If you prefer podcasts, [go time](https://changelog.com/gotime) has an excellent episode on [interfaces](https://changelog.com/gotime/118).
+One of the beautiful things about interfaces in Go is in our example, the harness package and classifier package do not know about eachother, nor need to, simply the calling code needs to ensure the implementation matches the interface.
 
 ```go
 // Predictor implementations define specific machine learning algorithms
@@ -53,11 +60,13 @@ type Predictor interface {
 }
 ```
 
-To implement the interface we would create a `struct`, and implement the `Fit` and `Predict` methods. We don't need to explicitly state we're implementing the interface (we don't even need to import it).
+To implement the interface we would create a `struct`, and implement the `Fit` and `Predict` methods.
+As stated earlier, we don't need to explicitly state we're implementing the interface (as we don't even need to import it).
 
-### Measuring success
+#### Measuring success
 
-It's important to get a good measure of how well your classifier works. There are an enourmous number of ways to measure how we your implementation works. Different metrics work for different types of models, as we're using classification, accuracy, recall, precision, and f1-score are what we're mostly interested in.
+It's important to get a good measure of how well your classifier works, and there are an enourmous number of ways to measure this.
+Different metrics work for different types of models, as we're using classification, accuracy, recall, precision, and f1-score are what we're mostly interested in.
 
 Further reading of a different metrics for [classification and regression models](https://towardsdatascience.com/20-popular-machine-learning-metrics-part-1-classification-regression-evaluation-metrics-1ca3e282a2ce).
 
@@ -72,7 +81,7 @@ type Metrics struct {
 }
 ```
 
-### The Evaluation function
+#### The Evaluation function
 
 The `Evaluate` function takes in our `Predictor` interface from earlier, and uses the `Fit` and `Predict` methods we discussed easlier.
 
@@ -89,7 +98,8 @@ func Evaluate(datasetPath string, algo Predictor) (Metrics, error) {
 		return Metrics{}, err
 	}
 
-	trainData, trainLabels, testData, testLabels := split(true, records, 0.7)
+	seed := uint64(time.Now().Unix())
+	trainData, trainLabels, testData, testLabels := split(records, 0.7, seed)
 
 	algo.Fit(trainData, trainLabels)
 
@@ -97,4 +107,154 @@ func Evaluate(datasetPath string, algo Predictor) (Metrics, error) {
 
 	return evaluate(predictions, testLabels), nil
 }
+```
+
+We'll omit a few concepts here for the sake of brevity, however, if you want to read further, the godocs are a great place to learn;
+- [file io](https://golang.org/pkg/os/)
+- [reading csv](https://golang.org/pkg/encoding/csv/)
+- [random](https://pkg.go.dev/golang.org/x/exp/rand?tab=doc)
+
+One thing to note is we are passing a seed into splitter function, this would enable us to test this function dependably.
+
+### Understanding the random classifier
+
+The important thing here is we implement both `Fit` and `Predict`, this allows us to use the random classifier with the harness discussed earlier.
+
+#### The struct
+
+To implement the interface, we need a struct.
+All we intend to do is randomly choose either 1 or 0 for our predictions, so we don't need to store any data, do any precomputations or anything.
+What we do do, is provide a seed, similar to above, this just allows some determinism should we choose to test the classifier works correctly.
+
+```go
+// Random is a baseline binary classifier that predicts results at random.
+type Random struct {
+	Seed int64
+}
+```
+
+#### Fitting our random classifier
+
+As mentioned earlier, we don't need to do anything here, but we still need to implement the function to make use of `Evaluate` discussed earlier.
+
+```go
+// Fit the data to the classifier
+//
+// Nothing to fit, as we will be predicting at random
+func (b *Random) Fit(_ *mat.Dense, _ []string) {}
+```
+
+#### Predicting with our random classifier
+
+Here we wish to arbitrarily choose whether to predict 1 or 0.
+
+```go
+// Predict on the test data based upon the training data
+//
+// Uses rand to randomly predict "0" or "1"
+func (b *Random) Predict(testData *mat.Dense) []string {
+	// move seed to once initialisation
+	rand.Seed(b.Seed)
+	rowCount, _ := testData.Dims()
+	predictions := make([]string, rowCount)
+	for i := 0; i < rowCount; i++ {
+		predictions[i] = strconv.Itoa(rand.Intn(2))
+	}
+
+	return predictions
+}
+```
+
+### Implementing the KNN classifier
+
+#### The struct
+
+Building off of our random classifier, we not only store the datapoints, but also the classes we're trying to predict.
+On top of this, we store `K`, which is the number of neighbours to look at for comparison.
+We also use a `Distance` function, this allows us to compute how close two vectors are.
+
+```go
+// A SimpleKNN implementation
+type SimpleKNN struct {
+	// K is the number of neighbours we're looking at
+	K int
+	// The distance function to find out how close a neighbour is
+	Distance   func(a, b mat.Vector) float64
+	datapoints *mat.Dense
+	classes    []string
+}
+```
+
+#### Fitting our KNN classifier
+
+We won't do anything too complicated to fit our model, we'll simply assign the datapoints and classes to our struct.
+
+```go
+// Fit the data to the classifier
+func (k *SimpleKNN) Fit(trainingData *mat.Dense, classes []string) {
+	k.datapoints = trainingData
+	k.classes = classes
+}
+```
+
+#### Predicting with our KNN classifier
+
+It's best to break this up into a couple of chunks as a lot is going on here.
+To get set up we make slices for everything we're going to need, this includes the targets (our predictions), and the distances from our vector to the other vectors.
+
+After thiswe want to create a loop to iterate through all the entries we need to predict for.
+
+```go
+// Predict the input based on the classifier
+func (k *SimpleKNN) Predict(X *mat.Dense) []string {
+	r, _ := X.Dims()
+	targets := make([]string, r)
+	distances := make([]float64, len(k.classes))
+	inds := make([]int, len(k.classes))
+
+	// For every entry we are predicting
+	for i := 0; i < r; i++ {
+		// ...
+	}
+	return targets
+}
+```
+
+Within the for loop, we need to determine which neighbours are the closest, we do this by iterating through each datapoint and use our `Distance` function from earlier. We then use the floats package to sort the distances from smallest to largest.
+
+```go
+	// for loop ...
+
+		// Calculate distance to nearest neighbour
+		for j := 0; j < len(k.classes); j++ {
+			distances[j] = k.Distance(k.datapoints.RowView(j), X.RowView(i))
+		}
+
+		// sort the distances
+		floats.Argsort(distances, inds)
+
+		// ...
+	// end for loop
+```
+
+After we learn the nearest neighbours, we then need to iterate through to our value of `K` (the number of neighbours to compare against). For each neighbour, we add one to its class, we then iterate through the votes to determine which class our prediction should be.
+
+```go
+	// for loop
+		// ...
+
+		// for the nearest K neighbours tally up their class count
+		votes := make(map[string]float64)
+		for n := 0; n < k.K; n++ {
+			votes[k.classes[inds[n]]]++
+		}
+		// figure out which class has the most neighbours
+		var winningCount float64
+		for k, v := range votes {
+			if v > winningCount {
+				targets[i] = k
+				winningCount = v
+			}
+		}
+	// end for loop
 ```

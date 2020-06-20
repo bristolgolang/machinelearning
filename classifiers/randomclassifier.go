@@ -15,7 +15,7 @@ type Random struct {
 // Fit the data to the classifier
 //
 // Nothing to fit, as we will be predicting at random
-func (b *Random) Fit(trainingData *mat.Dense, labels []string) {}
+func (b *Random) Fit(_ *mat.Dense, _ []string) {}
 
 // Predict on the test data based upon the training data
 //
