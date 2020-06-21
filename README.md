@@ -19,12 +19,11 @@ random              | {Accuracy:0.503731343283582 Recall:0.4723618090452261 Prec
 
 ### Create a KNN classifier from scratch
 
-There's a simple KNN classifier already in this repo, so if you wish to avoid spoilers don't look at the `simpleknnclassifier.go` file in the `classifiers` package.
-However, if you wish to see an example of the classifier implemented, it's a good place to start.
+There's a PR for a simple KNN classifier, so if you wish to avoid spoilers (or want to look for guidance) check out the PRs to this repo.
 
 ### Improve a simple KNN classifier
 
-Either copy the simple classifier, or take the classifier you built, and try some of these [techniques for improving your classifier](https://kevinzakka.github.io/2016/07/13/k-nearest-neighbor/#improvements)
+Either branch off a classifier in a PR, or take the classifier you built, and try some of these [techniques for improving your classifier](https://kevinzakka.github.io/2016/07/13/k-nearest-neighbor/#improvements)
 
 ### Bonus Goals
 
@@ -34,11 +33,8 @@ Either copy the simple classifier, or take the classifier you built, and try som
 
 This exercise is available for everyone, however we will be covering explicitly it in the June 2020 Bristol (UK) Go meetup.
 It is recommended to read through the README while exploring the codebase.
-We're aiming towards building the knnclassifier, so read that file at your own discretion.
 
-Either;
-- clone the repo and implement your own KNN classifier in the classifiers package, you can then make a PR back to into this repo, sharing what you learnt with others (recommended)
-- create your own package and import the harness package
+Clone the repo and implement your own KNN classifier in the classifiers package, you can then make a PR back to into this repo, sharing what you learnt with others (recommended)
 
 ## Understanding the codebase
 
