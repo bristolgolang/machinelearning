@@ -6,8 +6,14 @@ We will be exploring concepts used when creating classifiers in Go, building our
 
 ## Goal
 
-To explore, understand and implement our own KNN classifier algorithm.
+To explore, understand and implement our own KNN classifier algorithm that performs better than a `random` implementation.
 We'll be looking at a titanic dataset that has already been feature engineered, such that all categorical data has been encoded into numbers for us.
+
+```
+$go run main.go
+
+random              | {Accuracy:0.503731343283582 Recall:0.4723618090452261 Precision:0.7704918032786885 F1:0.5856697819314641}
+```
 
 ### Create a KNN classifier from scratch
 
