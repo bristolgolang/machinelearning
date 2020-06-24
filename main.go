@@ -8,6 +8,7 @@ import (
 
 	"github.com/bristolgolang/machinelearning/classifiers"
 	"github.com/bristolgolang/machinelearning/harness"
+	"github.com/bristolgolang/machinelearning/maths"
 )
 
 func main() {
@@ -27,6 +28,12 @@ func compareClassifiers() error {
 		return err
 	}
 	classifierResults["random"] = randomResult
+
+	simpleKNNResult, err := computeClassifierResults(&classifiers.SimpleKNN{K: 7, Distance: maths.EuclideanDistance})
+	if err != nil {
+		return err
+	}
+	classifierResults["simpleKNN"] = simpleKNNResult
 
 	harness.PrintResults(classifierResults)
 	return nil
